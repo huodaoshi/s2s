@@ -16,8 +16,8 @@ ruamel.yaml==0.17.40
 hyperpyyaml==1.2.2
 requests-file==2.1.0
 soundfile==0.13.1
-torch==2.4.0+cu124 
-torchaudio==2.4.0+cu124 
+torch==2.4.1+cu124 
+torchaudio==2.4.1+cu124 
 torchmetrics==1.7.1
 tqdm==4.66.5
 transformers==4.51.0

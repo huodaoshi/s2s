@@ -1,4 +1,6 @@
 import math
+import io
+import sys
 from typing import List, Optional, Tuple, Union
 from pathlib import Path
 import soundfile as sf
@@ -89,6 +91,31 @@ def get_waveform(
     return waveform
 
 
+def _convert_waveform_fallback(
+    waveform: Union[np.ndarray, torch.Tensor],
+    sample_rate: int,
+    to_mono: bool = False,
+    to_sample_rate: Optional[int] = None,
+) -> Tuple[Union[np.ndarray, torch.Tensor], int]:
+    import torchaudio
+
+    is_np_input = isinstance(waveform, np.ndarray)
+    _waveform = torch.from_numpy(waveform).float() if is_np_input else waveform.float()
+    if _waveform.dim() == 1:
+        _waveform = _waveform.unsqueeze(0)
+
+    if to_mono and _waveform.shape[0] > 1:
+        _waveform = _waveform.mean(dim=0, keepdim=True)
+
+    if to_sample_rate is not None and to_sample_rate != sample_rate:
+        _waveform = torchaudio.functional.resample(_waveform, sample_rate, to_sample_rate)
+        sample_rate = to_sample_rate
+
+    if is_np_input:
+        return _waveform.numpy(), sample_rate
+    return _waveform, sample_rate
+
+
 def convert_waveform(
     waveform: Union[np.ndarray, torch.Tensor],
     sample_rate: int,
@@ -111,11 +138,6 @@ def convert_waveform(
         waveform (numpy.ndarray): converted 2D waveform (channels x length)
         sample_rate (float): target sample rate
     """
-    try:
-        import torchaudio.sox_effects as ta_sox
-    except ImportError:
-        raise ImportError("Please install torchaudio: pip install torchaudio")
-
     effects = []
     if normalize_volume:
         effects.append(["gain", "-n"])
@@ -123,16 +145,30 @@ def convert_waveform(
         effects.append(["rate", f"{to_sample_rate}"])
     if to_mono and waveform.shape[0] > 1:
         effects.append(["channels", "1"])
-    if len(effects) > 0:
-        is_np_input = isinstance(waveform, np.ndarray)
-        _waveform = torch.from_numpy(waveform) if is_np_input else waveform
-        converted, converted_sample_rate = ta_sox.apply_effects_tensor(
-            _waveform, sample_rate, effects
-        )
-        if is_np_input:
-            converted = converted.numpy()
-        return converted, converted_sample_rate
-    return waveform, sample_rate
+
+    if len(effects) == 0:
+        return waveform, sample_rate
+
+    if sys.platform != "win32":
+        try:
+            import torchaudio.sox_effects as ta_sox
+
+            is_np_input = isinstance(waveform, np.ndarray)
+            _waveform = torch.from_numpy(waveform) if is_np_input else waveform
+            converted, converted_sample_rate = ta_sox.apply_effects_tensor(
+                _waveform, sample_rate, effects
+            )
+            if is_np_input:
+                converted = converted.numpy()
+            return converted, converted_sample_rate
+        except (ImportError, RuntimeError) as e:
+            logger.warning("sox effects unavailable, using fallback resampler: %s", e)
+
+    if normalize_volume:
+        logger.warning("volume normalization skipped on this platform (sox unavailable)")
+    return _convert_waveform_fallback(
+        waveform, sample_rate, to_mono=to_mono, to_sample_rate=to_sample_rate
+    )
 
 
 def collate_tokens(

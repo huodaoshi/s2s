@@ -42,7 +42,14 @@ if __name__ == "__main__":
     ):
 
         if input_mode == "audio":
-            assert audio_path is not None
+            if not audio_path or not os.path.isfile(audio_path):
+                error_output = "请先录音或上传音频文件。"
+                yield history, messages, previous_input_tokens, previous_completion_tokens, error_output, None, None, history
+                return
+            if os.path.getsize(audio_path) == 0:
+                error_output = "音频文件为空，请重新录音后再提交。"
+                yield history, messages, previous_input_tokens, previous_completion_tokens, error_output, None, None, history
+                return
             with open(audio_path, "rb") as audio_file:
                 audio_binary = audio_file.read()
             audio_binary = base64.b64encode(audio_binary).decode("utf-8")
@@ -72,7 +79,7 @@ if __name__ == "__main__":
                     "max_new_tokens": max_new_tokens
                 },
                 stream=True,
-                timeout=20
+                timeout=300
             )
 
             tts_speechs = []
@@ -96,7 +103,7 @@ if __name__ == "__main__":
                                 yield history, messages, inputs, complete_text, '', audio_binary, None, deepcopy(history)
                         yield history, messages, inputs, complete_text, '', None, None, deepcopy(history)
                     else:
-                        error_output = data["text"] + f" (error_code: {data['error_code']})"
+                        error_output = data["text"] + f"（错误码: {data['error_code']}）"
                         history.append({"role": "assistant", "content": error_output})
                         messages.append({"role": "assistant", "content": error_output})
                         yield history, messages, inputs, error_output, error_output, None, None, deepcopy(history)
@@ -116,25 +123,28 @@ if __name__ == "__main__":
 
 
     # Create the Gradio interface
-    with gr.Blocks(title="OmniSpeech Demo", fill_height=True) as demo:
+    with gr.Blocks(title="OpenS2S 语音对话", fill_height=True) as demo:
+        gr.Markdown("## OpenS2S 端到端语音对话演示")
+
         with gr.Row():
             temperature = gr.Number(
-                label="Temperature",
+                label="温度 (Temperature)",
                 value=0.2
             )
 
             top_p = gr.Number(
-                label="Top p",
+                label="Top P（核采样）",
                 value=0.8
             )
 
             max_new_token = gr.Number(
-                label="Max new tokens",
+                label="最大生成 token 数",
                 value=512,
             )
 
         chatbot = gr.Chatbot(
             elem_id="chatbot",
+            label="对话",
             bubble_full_width=False,
             type="messages",
             scale=1,
@@ -142,38 +152,42 @@ if __name__ == "__main__":
 
         with gr.Row():
             with gr.Column():
-                input_mode = gr.Radio(["audio", "text"], label="Input Mode", value="audio")
-                audio = gr.Audio(label="Input audio", type='filepath', show_download_button=True, visible=True)
-                text_input = gr.Textbox(label="Input text", placeholder="Enter your text here...", lines=2, visible=False)
+                input_mode = gr.Radio(
+                    [("语音", "audio"), ("文字", "text")],
+                    label="输入方式",
+                    value="audio",
+                )
+                audio = gr.Audio(label="输入语音", type='filepath', show_download_button=True, visible=True)
+                text_input = gr.Textbox(label="输入文字", placeholder="在此输入文字…", lines=2, visible=False)
 
             with gr.Column():
-                submit_btn = gr.Button("Submit")
-                reset_btn = gr.Button("Clear")
+                submit_btn = gr.Button("提交", variant="primary")
+                reset_btn = gr.Button("清空")
                 if streaming_output:
-                    output_audio = gr.Audio(label="Play", streaming=True,
+                    output_audio = gr.Audio(label="播放", streaming=True,
                         autoplay=True, show_download_button=False)
                 else:
-                    output_audio = gr.Audio(label="Play", streaming=False,
+                    output_audio = gr.Audio(label="播放", streaming=False,
                         autoplay=False, show_download_button=False)
-                complete_audio = gr.Audio(label="Last Output Audio (If Any)",
+                complete_audio = gr.Audio(label="最近一次输出语音",
                     type="filepath", interactive=False, autoplay=False)
 
 
 
-        gr.Markdown("""## Debug Info""")
+        gr.Markdown("""## 调试信息""")
         with gr.Row():
             input_tokens = gr.Textbox(
-                label=f"Input Tokens",
+                label="输入 Token",
                 interactive=False,
             )
 
             completion_tokens = gr.Textbox(
-                label=f"Completion Tokens",
+                label="生成 Token",
                 interactive=False,
             )
 
         detailed_error = gr.Textbox(
-            label=f"Detailed Error",
+            label="详细错误",
             interactive=False,
         )
 
@@ -199,6 +213,8 @@ if __name__ == "__main__":
 
         reset_btn.click(clear_fn, outputs=[chatbot, history_state, messages, input_tokens, completion_tokens, detailed_error, output_audio, complete_audio])
         input_mode.input(update_input_interface, inputs=[input_mode], outputs=[audio, text_input])
+
+        respond.then(lambda: None, outputs=audio)
 
     # Launch the interface
     demo.launch(

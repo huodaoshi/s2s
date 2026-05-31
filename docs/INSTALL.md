@@ -47,6 +47,42 @@ choco install python310 -y
 
 ---
 
+## 国内镜像（默认开启）
+
+`scripts/mirrors.ps1` 在 **未禁用** 时自动使用：
+
+| 用途 | 默认镜像 |
+| --- | --- |
+| PyPI | `https://pypi.tuna.tsinghua.edu.cn/simple` |
+| PyTorch cu124 | `https://download.pytorch.org/whl/cu124`（**+cu124 仅官方源**，约 2.5GB） |
+| HuggingFace 权重 | 默认 `https://hf-mirror.com`（`download-opens2s-models.ps1` 用 `HfApi` 下载；不可达时自动探测官方源） |
+
+`bootstrap.ps1`、`env.ps1`、`download-opens2s-models.ps1` 均会加载上述配置。
+
+**禁用国内镜像**（走官方源）：
+
+```powershell
+$env:S2S_USE_CN_MIRROR = "0"
+.\scripts\bootstrap.ps1
+```
+
+**自定义镜像**（在运行 bootstrap 前设置）：
+
+```powershell
+$env:S2S_PIP_INDEX = "https://mirrors.aliyun.com/pypi/simple/"
+$env:S2S_PYTORCH_INDEX = "https://mirrors.tuna.tsinghua.edu.cn/pytorch-wheels/cu124"
+$env:HF_ENDPOINT = "https://hf-mirror.com"
+```
+
+若当前 L1 安装很慢，可 **Ctrl+C 中断** 后删除半成品 venv 并重跑（镜像对未完成的 pip 更有效）：
+
+```powershell
+Remove-Item -Recurse -Force env\.venv
+.\scripts\bootstrap.ps1
+```
+
+---
+
 ## L2 — OpenS2S 可推理
 
 L1 完成后，按序执行：

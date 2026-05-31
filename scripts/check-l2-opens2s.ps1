@@ -50,25 +50,15 @@ foreach ($rel in $modelDirs) {
 # CUDA (requires venv)
 $venvPython = Join-Path $Root "env\.venv\Scripts\python.exe"
 if (-not (Test-Path $venvPython)) {
-    Fail-Check "venv not found — run .\scripts\bootstrap.ps1 first"
+    Fail-Check "venv not found - run .\scripts\bootstrap.ps1 first"
 } else {
-    $cudaScript = @'
-import sys
-import torch
-if not torch.cuda.is_available():
-    print("CUDA_NOT_AVAILABLE")
-    sys.exit(1)
-name = torch.cuda.get_device_name(0)
-total_gb = torch.cuda.get_device_properties(0).total_memory / (1024**3)
-print(f"CUDA_OK|{name}|{total_gb:.1f}")
-'@
-    $result = & $venvPython -c $cudaScript 2>&1
+    $result = & $venvPython -c "import sys,torch; (sys.exit(1),) if not torch.cuda.is_available() else None; p=torch.cuda.get_device_properties(0); print('CUDA_OK|'+torch.cuda.get_device_name(0)+'|'+str(round(p.total_memory/(1024**3),1)))" 2>&1
     if ($LASTEXITCODE -ne 0 -or ($result -match "CUDA_NOT_AVAILABLE")) {
         Fail-Check "torch.cuda.is_available() is False"
         Write-Host "      Check NVIDIA driver and CUDA-compatible GPU."
     } else {
         $parts = ($result -split "\|")
-        Pass-Check ("CUDA available — " + $parts[1] + ", " + $parts[2] + " GB VRAM")
+        Pass-Check ("CUDA available - " + $parts[1] + ", " + $parts[2] + " GB VRAM")
         $vram = [double]$parts[2]
         if ($vram -lt 20) {
             Write-Host "WARN: OpenS2S bf16 typically needs ~24 GB VRAM; you may OOM at runtime." -ForegroundColor Yellow
@@ -78,9 +68,9 @@ print(f"CUDA_OK|{name}|{total_gb:.1f}")
 
 Write-Host ""
 if ($failed) {
-    Write-Host "L2 NOT ready — fix failures above." -ForegroundColor Red
+    Write-Host "L2 NOT ready - fix failures above." -ForegroundColor Red
     exit 1
 }
 
-Write-Host "L2 complete — OpenS2S inference ready" -ForegroundColor Green
-Write-Host "Start services — see src/opens2s/SPIKE.md"
+Write-Host "L2 complete - OpenS2S inference ready" -ForegroundColor Green
+Write-Host "Start services - see src/opens2s/SPIKE.md"

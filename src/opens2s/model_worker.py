@@ -29,7 +29,7 @@ from transformers import TextIteratorStreamer
 from transformers import GenerationConfig
 from transformers.generation.streamers import BaseStreamer
 from threading import Thread
-from queue import Queue
+from queue import Queue, Empty as QueueEmpty
 
 from flow_inference import AudioDecoder
 from src.constants import WORKER_HEART_BEAT_INTERVAL
@@ -190,6 +190,16 @@ class ModelWorker:
             "queue_length": self.get_queue_length(),
         }
 
+    def _decode_audio_waveform(self, audio_binary: bytes):
+        # Windows cannot read a NamedTemporaryFile while it is still open.
+        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_file:
+            temp_file.write(audio_binary)
+            temp_file_path = temp_file.name
+        try:
+            return get_waveform(temp_file_path)
+        finally:
+            os.unlink(temp_file_path)
+
     def get_input_params(self, messages):
         new_messages = []
         audios = []
@@ -205,11 +215,8 @@ class ModelWorker:
                 for item in content:
                     if item.get("audio", ""):
                         audio_binary = base64.b64decode(item["audio"])
-                        with tempfile.NamedTemporaryFile(suffix='.wav', delete=True) as temp_file:
-                            temp_file.write(audio_binary)
-                            temp_file_path = temp_file.name
-                            waveform = get_waveform(temp_file_path)
-                            audios.append(waveform)
+                        waveform = self._decode_audio_waveform(audio_binary)
+                        audios.append(waveform)
                         new_content += f"{DEFAULT_AUDIO_START_TOKEN}{DEFAULT_AUDIO_TOKEN}{DEFAULT_AUDIO_END_TOKEN}"
                     elif item.get("text", ""):
                         new_content += item["text"]
@@ -217,11 +224,8 @@ class ModelWorker:
                 new_content = ""
                 if content.get("audio", ""):
                     audio_binary = base64.b64decode(content["audio"])
-                    with tempfile.NamedTemporaryFile(suffix='.wav', delete=True) as temp_file:
-                        temp_file.write(audio_binary)
-                        temp_file_path = temp_file.name
-                        waveform = get_waveform(temp_file_path)
-                        audios.append(waveform)
+                    waveform = self._decode_audio_waveform(audio_binary)
+                    audios.append(waveform)
                     new_content += f"{DEFAULT_AUDIO_START_TOKEN}{DEFAULT_AUDIO_TOKEN}{DEFAULT_AUDIO_END_TOKEN}"
                 elif content.get("text", ""):
                     new_content += content["text"]
@@ -287,8 +291,8 @@ class ModelWorker:
             }
         )
 
-        streamer = TextIteratorStreamer(tokenizer, skip_prompt=False, skip_special_tokens=True, timeout=15)
-        units_streamer = TokenStreamer(skip_prompt=False, timeout=15)
+        streamer = TextIteratorStreamer(tokenizer, skip_prompt=False, skip_special_tokens=True, timeout=300)
+        units_streamer = TokenStreamer(skip_prompt=False, timeout=300)
 
         thread = Thread(target=model.generate, kwargs=dict(
             input_ids=input_ids,
@@ -325,6 +329,9 @@ class ModelWorker:
                     yield json.dumps({"text": generated_text, "audio": "", "finalize": False, "error_code": 0}).encode() + b"\0"
                 except StopIteration:
                     active_text = False
+                except QueueEmpty:
+                    if not thread.is_alive():
+                        active_text = False
             if active_units:
                 try:
                     new_unit = next(units_streamer)
@@ -366,6 +373,9 @@ class ModelWorker:
                         yield json.dumps({"text": generated_text, "audio": base64_string, "finalize": True, "error_code": 0}).encode() + b"\0"
                     else:
                         yield json.dumps({"text": generated_text, "audio": "", "finalize": True, "error_code": 0}).encode() + b"\0"
+                except QueueEmpty:
+                    if not thread.is_alive():
+                        active_units = False
 
 
     def generate_stream_gate(self, params):
@@ -375,21 +385,21 @@ class ModelWorker:
         except ValueError as e:
             print("Caught ValueError:", e)
             ret = {
-                "text": server_error_msg,
+                "text": f"{server_error_msg}\n\n{type(e).__name__}: {e}",
                 "error_code": 1,
             }
             yield json.dumps(ret).encode() + b"\0"
         except torch.cuda.CudaError as e:
             print("Caught torch.cuda.CudaError:", e)
             ret = {
-                "text": server_error_msg,
+                "text": f"{server_error_msg}\n\n{type(e).__name__}: {e}",
                 "error_code": 1,
             }
             yield json.dumps(ret).encode() + b"\0"
         except Exception as e:
             print("Caught Unknown Error", e)
             ret = {
-                "text": server_error_msg,
+                "text": f"{server_error_msg}\n\n{type(e).__name__}: {e}",
                 "error_code": 1,
             }
             yield json.dumps(ret).encode() + b"\0"

@@ -3,6 +3,8 @@ $ErrorActionPreference = "Stop"
 
 $S2S_ROOT = Split-Path $PSScriptRoot -Parent
 
+. (Join-Path $PSScriptRoot "mirrors.ps1")
+
 $env:S2S_ROOT = $S2S_ROOT
 $env:HF_HOME = Join-Path $S2S_ROOT "cache\huggingface"
 $env:HUGGINGFACE_HUB_CACHE = Join-Path $env:HF_HOME "hub"
@@ -13,7 +15,7 @@ if (Test-Path $venvActivate) {
     . $venvActivate
     Write-Host "[s2s] venv activated: $venvActivate"
 } else {
-    Write-Host "[s2s] venv not found — run scripts\bootstrap.ps1 first"
+    Write-Host "[s2s] venv not found - run scripts\bootstrap.ps1 first"
 }
 
 # Optional: HF_TOKEN or HUGGINGFACE_HUB_TOKEN for gated models (see docs/INSTALL.md)
@@ -25,3 +27,9 @@ if ($env:HF_TOKEN) {
 
 Write-Host "[s2s] S2S_ROOT=$env:S2S_ROOT"
 Write-Host "[s2s] HF_HOME=$env:HF_HOME"
+if ($env:HF_ENDPOINT) {
+    Write-Host "[s2s] HF_ENDPOINT=$env:HF_ENDPOINT"
+}
+if ($env:S2S_USE_CN_MIRROR -ne "0") {
+    Write-Host "[s2s] pip mirror: $env:S2S_PIP_INDEX"
+}
