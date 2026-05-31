@@ -1,0 +1,21 @@
+project_name: s2s
+repo_layout: single
+detected_languages:
+  - python
+domains:
+  - name: s2s
+    type: backend
+    lang: python
+    path: ./
+    description: 独立 Speech-to-Speech spike 试验工程；OpenS2S 本地推理 + 火山/阶跃云 API spike 占位
+    skills:
+      - .harness/knowledge/domains/backend/01-architecture.md
+      - .harness/knowledge/domains/backend/02-business-domains.md
+      - .harness/knowledge/domains/backend/03-infra-patterns.md
+      - .harness/knowledge/domains/backend/04-dev-guide.md
+    rules: []
+    validate_commands:
+      - python -m compileall -q src/opens2s
+    test_glob: test_*.py
+shared_skills: []
+cross_domain_skills: []

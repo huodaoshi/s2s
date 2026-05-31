@@ -1,0 +1,23 @@
+{
+  "detected_at": "2026-05-31T00:00:00+08:00",
+  "signals": {
+    "monorepo_files": [],
+    "lang_files": {
+      "requirements.txt": ["./src/opens2s/requirements.txt"]
+    },
+    "top_level_dirs": ["src", "scripts", "docs", "env", "models", "cache", "logs", ".agents"]
+  },
+  "domain_candidates": [
+    {
+      "path": "./",
+      "evidence": [
+        "README.md spike layout",
+        "src/opens2s/controller.py",
+        "src/volc-realtime/README.md",
+        "src/stepfun-realtime/README.md",
+        "scripts/bootstrap.ps1"
+      ],
+      "decision": "single domain — spike lab with shared venv, not classic monorepo workspace"
+    }
+  ]
+}
