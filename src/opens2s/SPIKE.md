@@ -4,32 +4,34 @@
 
 代码来源：自 `one-eino/OpenS2S` 复制，**已去除 `.git`**。
 
-## 模型权重（放入 `D:\s2s\models\`）
+**安装（L1/L2）**见 [`docs/INSTALL.md`](../../docs/INSTALL.md)。本节仅 **L2 验收通过后的运行时**。
 
-| 组件 | HuggingFace |
+## Model artifact directories
+
+| 目录 | HuggingFace |
 | --- | --- |
-| OpenS2S | [CASIA-LM/OpenS2S](https://huggingface.co/CASIA-LM/OpenS2S) |
-| 流解码器 | [THUDM/glm-4-voice-decoder](https://huggingface.co/THUDM/glm-4-voice-decoder) |
+| `models/casia-opens2s/` | [CASIA-LM/OpenS2S](https://huggingface.co/CASIA-LM/OpenS2S) |
+| `models/thudm-glm4-voice-decoder/` | [THUDM/glm-4-voice-decoder](https://huggingface.co/THUDM/glm-4-voice-decoder) |
 
 **不能用 LM Studio** 替代 OpenS2S 整包权重。
 
-建议路径：
+下载与 L2 验收：
 
-```text
-D:\s2s\models\casia-opens2s\
-D:\s2s\models\thudm-glm4-voice-decoder\
+```powershell
+# 在 D:\s2s 根目录，L1 已完成
+.\scripts\download-opens2s-models.ps1
+.\scripts\check-l2-opens2s.ps1
 ```
 
-## 依赖与启动
+## 启动三进程
 
-在 **D:\s2s** 根目录：
+在 **D:\s2s** 根目录先激活环境：
 
 ```powershell
 . .\scripts\env.ps1
-pip install -r src\opens2s\requirements.txt
 ```
 
-需 **ffmpeg** 在 PATH；**torch 2.4.0+cu124**。
+在 **`src/opens2s`** 目录启动（相对 import 依赖此 cwd）：
 
 ```powershell
 cd src\opens2s
@@ -37,3 +39,5 @@ python controller.py
 python model_worker.py --model-path D:\s2s\models\casia-opens2s --flow-path D:\s2s\models\thudm-glm4-voice-decoder
 python web_demo.py --port 8888
 ```
+
+默认 Web Demo 端口：**8888**（各 spike 端口统一约定仍待 grill）。

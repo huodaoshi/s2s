@@ -31,40 +31,26 @@ D:\s2s\
 
 ## 快速开始
 
-### 1. 安装 Python 3.10
+完整安装见 **[`docs/INSTALL.md`](docs/INSTALL.md)**（L1 开发环境 + L2 OpenS2S 可推理）。
 
-本机当前仅有 3.11/3.12 时，需先装 3.10，例如：
+### L1 概要
 
-```powershell
-choco install python310 -y
-```
-
-或从 [python.org](https://www.python.org/downloads/release/python-31011/) 安装，并确认：
-
-```powershell
-python3.10 --version
-```
-
-### 2. 初始化环境
-
-在 **本仓库根目录** 打开 PowerShell：
+1. **手动安装 Python 3.10**（[python.org](https://www.python.org/downloads/release/python-31011/) 或 `choco install python310 -y`）
+2. 在仓库根目录：
 
 ```powershell
 .\scripts\bootstrap.ps1
-.\scripts\env.ps1
+. .\scripts\env.ps1
 ```
 
-### 3. OpenS2S（首个 spike）
+### L2 概要（OpenS2S）
 
 ```powershell
-# 若尚未 clone
-git clone https://github.com/CASIA-LM/OpenS2S.git src\opens2s
-
-# 安装依赖（需已激活 env\.venv 且已 source env.ps1）
-pip install -r src\opens2s\requirements.txt
+.\scripts\download-opens2s-models.ps1
+.\scripts\check-l2-opens2s.ps1
 ```
 
-权重下载与启动步骤见 `src/opens2s/README.md`。
+启动服务见 [`src/opens2s/SPIKE.md`](src/opens2s/SPIKE.md)。
 
 ## 环境变量（scripts/env.ps1）
 
@@ -80,8 +66,7 @@ pip install -r src\opens2s\requirements.txt
 
 ## 下一步（在 Cursor 中切到本目录后继续）
 
-- [ ] 安装 Python 3.10 + 跑通 `bootstrap.ps1`
-- [x] OpenS2S 已复制到 `src/opens2s`（无嵌套 `.git`）
-- [ ] 安装 ffmpeg 并加入 PATH
-- [ ] 下载 OpenS2S + glm-4-voice-decoder 到 `models/`
+- [ ] 跑通 L1：`.\scripts\bootstrap.ps1`
+- [ ] 跑通 L2：`download-opens2s-models.ps1` + `check-l2-opens2s.ps1`
+- [ ] 安装 ffmpeg 并加入 PATH（L2 前置）
 - [ ] 在 `docs/` 继续 grill / 写 spike 结论
