@@ -12,7 +12,7 @@
 ## 待在本工程内继续 grill
 
 - [ ] `models/` 命名规范（按厂商 vs 按模型 id）
-- [ ] OpenS2S 从 `one-eino/OpenS2S` **迁移**还是 **重新 clone**
+- [x] OpenS2S 从 `one-eino/OpenS2S` **复制**到 `src/opens2s`（已去除 `.git`）
 - [ ] ffmpeg / CUDA PyTorch 安装责任（脚本 vs 文档）
 - [ ] 各 spike 默认端口与 `logs/` 约定
 - [ ] spike 结论如何回流 one-eino（ADR / `.scratch` / 口头）

@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "skills": {
+    "caveman": {
+      "source": "D:\\harness",
+      "sourceType": "local",
+      "computedHash": "234b9b743c1dd5c207a7ea39693e97d7e0ce08b2d5b806a5a2e2e78e51e45738"
+    },
+    "code-review": {
+      "source": "D:\\harness",
+      "sourceType": "local",
+      "computedHash": "367515adf90b6b63888a77fe33d24602231d6d16da5ca35cffd79fa10f35b964"
+    },
+    "diagnose": {
+      "source": "D:\\harness",
+      "sourceType": "local",
+      "computedHash": "5579f7919b1b00da5e64a70c6111d1532a04d123c7e4adff87543f3cb060f890"
+    },
+    "grill-me": {
+      "source": "D:\\harness",
+      "sourceType": "local",
+      "computedHash": "e228efa2807c7960649a178240a1fb777029c0a43b16c1387de3b28e926d5aa7"
+    },
+    "grill-with-docs": {
+      "source": "D:\\harness",
+      "sourceType": "local",
+      "computedHash": "fdda5cedb5bbc62206b61302465c84434f5a612b19df2ebd86e76bf4dce4cca0"
+    },
+    "handoff": {
+      "source": "D:\\harness",
+      "sourceType": "local",
+      "computedHash": "f58212b255c41dba67d8d2502885113301ca355c349d5a4f07bcee634801f4b2"
+    },
+    "improve-codebase-architecture": {
+      "source": "D:\\harness",
+      "sourceType": "local",
+      "computedHash": "793bf6c1a58d28e7d35ce0f0470d27312e43bd2ebedbfd5188780b62fdd41a30"
+    },
+    "init-knowledge": {
+      "source": "D:\\harness",
+      "sourceType": "local",
+      "computedHash": "17a23e5f762e58be5bc671303e6aecaaed4cd0f2578d1764dff2644ff23297cf"
+    },
+    "landscape": {
+      "source": "D:\\harness",
+      "sourceType": "local",
+      "computedHash": "03fefa089c524a17bc14ce07b088e95c69757944d859066fa4eece93d1bffedf"
+    },
+    "learn": {
+      "source": "D:\\harness",
+      "sourceType": "local",
+      "computedHash": "94b2a9c5e9e1cc867c9eaf6c148cde2fb6250698e2d344b540b7085f31f1c0b3"
+    },
+    "product-council": {
+      "source": "D:\\harness",
+      "sourceType": "local",
+      "computedHash": "953bdb09a4f3c9bec3a82d4e51b92d119b87dd88116ad7c0778bcaa404885b8c"
+    },
+    "prototype": {
+      "source": "D:\\harness",
+      "sourceType": "local",
+      "computedHash": "221d932de68da6c48526545283a71c8b51e103f2364c0c0d95e6bfe49f07425d"
+    },
+    "setup-matt-pocock-skills": {
+      "source": "D:\\harness",
+      "sourceType": "local",
+      "computedHash": "88a3c9147646e2c06f8ae21bc8a6467f7ca2c6c0d28632641fbbbccd38045561"
+    },
+    "tdd": {
+      "source": "D:\\harness",
+      "sourceType": "local",
+      "computedHash": "cd11ad7ae2e077e2ed0079034ea1873404d7ab840ec18874a1964376b2f52ff7"
+    },
+    "to-issues": {
+      "source": "D:\\harness",
+      "sourceType": "local",
+      "computedHash": "d4be89de98931a32709e909041406f655f31dcc46cd371ae6b9d414f4132589c"
+    },
+    "to-prd": {
+      "source": "D:\\harness",
+      "sourceType": "local",
+      "computedHash": "8fcdf2e4dbbd0c52df7a22fc9dc4534f064be2ce8e7e266bfffaf26716f3e9ad"
+    },
+    "triage": {
+      "source": "D:\\harness",
+      "sourceType": "local",
+      "computedHash": "890d79dc586f4de9fd6f63ce9afb5862f8962281d7183544d4abb9ffac90ffcb"
+    },
+    "write-a-skill": {
+      "source": "D:\\harness",
+      "sourceType": "local",
+      "computedHash": "e106302de9ecb0d77eb47e0cb9ffcc21f9863519e9ddfd98fa28dc3a95356291"
+    },
+    "zoom-out": {
+      "source": "D:\\harness",
+      "sourceType": "local",
+      "computedHash": "0beffdc57dc09eb588d8e741d98c9abd8fc925fa10e2f9fd358b687a254073de"
+    }
+  }
+}

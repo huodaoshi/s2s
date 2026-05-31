@@ -81,7 +81,7 @@ pip install -r src\opens2s\requirements.txt
 ## 下一步（在 Cursor 中切到本目录后继续）
 
 - [ ] 安装 Python 3.10 + 跑通 `bootstrap.ps1`
-- [ ] 迁移或 clone OpenS2S 到 `src/opens2s`
+- [x] OpenS2S 已复制到 `src/opens2s`（无嵌套 `.git`）
 - [ ] 安装 ffmpeg 并加入 PATH
 - [ ] 下载 OpenS2S + glm-4-voice-decoder 到 `models/`
 - [ ] 在 `docs/` 继续 grill / 写 spike 结论
