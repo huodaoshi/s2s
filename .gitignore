@@ -1,5 +1,6 @@
 # Python
 env/.venv/
+env/.venv-minimind/
 __pycache__/
 *.py[cod]
 *.egg-info/
@@ -29,3 +30,4 @@ Thumbs.db
 
 # Jupyter
 .ipynb_checkpoints/
+.codegraph/

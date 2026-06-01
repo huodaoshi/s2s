@@ -49,8 +49,11 @@ $dirs = @(
     "cache\huggingface\hub",
     "logs",
     "src\opens2s",
+    "src\minimind",
+    "src\minimind\dataset",
     "src\volc-realtime",
     "src\stepfun-realtime",
+    "env\.venv-minimind",
     "docs\references"
 )
 foreach ($d in $dirs) {

@@ -4,8 +4,10 @@
 
 | 层级 | 名称 | 完成态 |
 | --- | --- | --- |
-| **L1** | Development environment ready | Python 3.10、venv、依赖已装、能 `import torch` |
+| **L1** | Development environment ready（OpenS2S） | Python 3.10、`env/.venv`、依赖已装、能 `import torch` |
 | **L2** | OpenS2S inference ready | L1 + ffmpeg + CUDA + 权重落盘 + 可启动三进程 |
+| **M1** | MiniMind environment ready | Python 3.10、`env/.venv-minimind`、MiniMind 依赖、CUDA 可用 |
+| **L2** | MiniMind reproduction ready | M1 + mini 数据 + 本机训练 checkpoint + 人工 `eval_llm` |
 
 ---
 
@@ -132,6 +134,69 @@ ffmpeg -version
 
 ---
 
+## MiniMind 教学复现 {#minimind-教学复现}
+
+术语与架构见 [`CONTEXT.md`](../CONTEXT.md)、[`docs/adr/0002-minimind-spike-installation.md`](./adr/0002-minimind-spike-installation.md)。**不**使用 OpenS2S 的 `env.ps1` / `env/.venv`。
+
+### M1 — MiniMind 环境就绪
+
+在仓库根目录：
+
+```powershell
+.\scripts\bootstrap-minimind.ps1
+. .\scripts\env-minimind.ps1
+.\scripts\check-m1-minimind.ps1
+```
+
+`bootstrap-minimind.ps1` 会创建 `env/.venv-minimind`，先安装与 OpenS2S L1 对齐的 `torch==2.4.0+cu124`，再安装 `src/minimind/requirements.txt` 其余包。
+
+成功时 **`M1 complete`**。**CUDA 为硬性要求**（训练与 M1 验收）。
+
+### 下载 mini 训练数据
+
+```powershell
+. .\scripts\env-minimind.ps1
+.\scripts\download-minimind-dataset.ps1
+```
+
+默认 **ModelScope**（`gongjy/minimind_dataset`），失败时回退 **HuggingFace**（`jingyaogong/minimind_dataset`）。目标路径：
+
+| 文件 | 路径 |
+| --- | --- |
+| `pretrain_t2t_mini.jsonl` | `src/minimind/dataset/` |
+| `sft_t2t_mini.jsonl` | `src/minimind/dataset/` |
+
+HF 需认证时：设置 `HF_TOKEN` 或 `huggingface-cli login`。
+
+### L2 — MiniMind 可复现（训练 + 文件门禁）
+
+1. **单卡**（默认）在 `src/minimind/trainer/` 依次训练：
+
+```powershell
+. ..\..\scripts\env-minimind.ps1
+cd src\minimind\trainer
+python train_pretrain.py
+python train_full_sft.py
+```
+
+产出 `src/minimind/out/pretrain_768.pth`、`full_sft_768.pth`。
+
+2. 文件门禁（**不**跑推理）：
+
+```powershell
+.\scripts\check-l2-minimind.ps1
+```
+
+3. **人工**推理验收（在 `src/minimind`）：
+
+```powershell
+python eval_llm.py --load_from model --weight full_sft
+```
+
+训练细节与多卡可选命令见 [`src/minimind/SPIKE.md`](../src/minimind/SPIKE.md)。
+
+---
+
 ## 脚本一览
 
 | 脚本 | 层级 | 作用 |
@@ -140,6 +205,11 @@ ffmpeg -version
 | `scripts/env.ps1` | — | 环境变量 + 激活 venv（每次开终端） |
 | `scripts/download-opens2s-models.ps1` | L2 | 下载 OpenS2S 权重 |
 | `scripts/check-l2-opens2s.ps1` | L2 | ffmpeg / 权重 / CUDA 硬门禁 |
+| `scripts/bootstrap-minimind.ps1` | M1 | MiniMind venv + pip + torch 校验 |
+| `scripts/env-minimind.ps1` | — | 激活 `env/.venv-minimind` |
+| `scripts/check-m1-minimind.ps1` | M1 | MiniMind venv / CUDA / transformers |
+| `scripts/download-minimind-dataset.ps1` | L2 前 | mini jsonl → `src/minimind/dataset/` |
+| `scripts/check-l2-minimind.ps1` | L2 | 数据 + `out/*.pth` 文件门禁（C1） |
 
 ---
 
@@ -159,3 +229,5 @@ ffmpeg -version
 
 - 架构决策：[docs/adr/0001-layered-project-installation.md](./adr/0001-layered-project-installation.md)
 - OpenS2S 运行时：[src/opens2s/SPIKE.md](../src/opens2s/SPIKE.md)
+- MiniMind 决策：[docs/adr/0002-minimind-spike-installation.md](./adr/0002-minimind-spike-installation.md)
+- MiniMind 训练/推理：[src/minimind/SPIKE.md](../src/minimind/SPIKE.md)

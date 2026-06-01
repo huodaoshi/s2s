@@ -19,10 +19,12 @@ D:\s2s\
 ├── README.md
 ├── docs/                 # 决策、竞品 references
 ├── src/
-│   ├── opens2s/          # OpenS2S 上游 clone
+│   ├── opens2s/          # OpenS2S（vendored）
+│   ├── minimind/         # MiniMind 文本 LLM 教学复现 spike
 │   ├── volc-realtime/    # 火山 RealtimeAPI spike
 │   └── stepfun-realtime/ # 阶跃 StepAudio Realtime spike
-├── env/.venv/            # Python 3.10 虚拟环境（bootstrap 创建）
+├── env/.venv/            # OpenS2S 虚拟环境（bootstrap 创建）
+├── env/.venv-minimind/   # MiniMind 虚拟环境（bootstrap-minimind 创建）
 ├── models/               # HF 权重（gitignore）
 ├── cache/huggingface/    # HF_HOME（gitignore）
 ├── logs/
@@ -31,7 +33,7 @@ D:\s2s\
 
 ## 快速开始
 
-完整安装见 **[`docs/INSTALL.md`](docs/INSTALL.md)**（L1 开发环境 + L2 OpenS2S 可推理）。
+完整安装见 **[`docs/INSTALL.md`](docs/INSTALL.md)**（OpenS2S：L1 + L2；MiniMind：M1 + L2，见 [MiniMind 章节](docs/INSTALL.md#minimind-教学复现)）。
 
 ### L1 概要
 
